@@ -63,7 +63,7 @@ class ModelMiner():
         
         self.system_prompt=""
 
-        self.tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
+        self.tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
 
         name = 'mosaicml/mpt-7b-chat'
 
