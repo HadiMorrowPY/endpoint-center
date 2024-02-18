@@ -64,7 +64,19 @@ class ModelMiner():
         self.system_prompt=""
 
         self.tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
-        self.model = AutoModelForCausalLM.from_pretrained( model_name, config=config, low_cpu_mem_usage=True, trust_remote_code=True )
+
+        name = 'mosaicml/mpt-7b-chat'
+
+        config = transformers.AutoConfig.from_pretrained(name, trust_remote_code=True)
+        config.attn_config['attn_impl'] = 'triton'
+        config.init_device = 'cuda:0' # For fast initialization directly on GPU!
+        
+        self.model = transformers.AutoModelForCausalLM.from_pretrained(
+          name,
+          config=config,
+          torch_dtype=torch.bfloat16, # Load model weights in bfloat16
+          trust_remote_code=True
+        )
         print("model loaded")
         
         
