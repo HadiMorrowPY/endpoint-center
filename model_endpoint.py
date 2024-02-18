@@ -18,7 +18,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Run API with OpenAI parameters.")
     parser.add_argument("--auth_token", default="", help="Authentication token")
     parser.add_argument("--model_name", default="gpt-3.5-turbo", help="Model name")
-    parser.add_argument("--port", default=8008, type=int, help="Model name")
+    parser.add_argument("--port", default=8080, type=int, help="Model name")
     return parser.parse_args()
 
 
@@ -43,7 +43,7 @@ def chat():
         response = miner.forward(messages, num_replies = n)
     except:
         traceback.print_exc(file=sys.stderr)
-        return "An error occured"
+        return "An error occured in response = miner.forward(messages, num_replies = n)"
     if len(response) == 1:
         response = response[0]
     # Return the response
@@ -52,8 +52,8 @@ def chat():
 
 
 class ModelMiner():
-
-    def __init__( self, model_name, device="cuda", max_length=250, temperature=0.7, do_sample=True ):
+#change cuda:0
+    def __init__( self, model_name, device="cuda:0", max_length=50, temperature=0.9, do_sample=True ):
         super( ModelMiner, self ).__init__()
         
         self.device = device
@@ -65,10 +65,9 @@ class ModelMiner():
 
         self.tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
 
-        name = 'mosaicml/mpt-7b-chat'
+        name = 'TheBloke/mpt-7b-chat-GGML'
         
         config = transformers.AutoConfig.from_pretrained(name, trust_remote_code=True)
-        config.attn_config['attn_impl'] = 'triton'
         config.init_device = 'cuda:0' # For fast initialization directly on GPU!
         
         self.model = transformers.AutoModelForCausalLM.from_pretrained(
