@@ -11,8 +11,8 @@ import time
 import requests
 import re
 import copy
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+import transformers
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Run API with OpenAI parameters.")
