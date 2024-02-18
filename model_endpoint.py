@@ -13,6 +13,7 @@ import re
 import copy
 import torch
 import transformers
+from transformers import AutoTokenizer
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Run API with OpenAI parameters.")
@@ -25,7 +26,7 @@ def parse_arguments():
 # Define the Flask app
 app = Flask(__name__)
 
-@app.route("/", methods=["POST"])
+@app.route("/Dummy", methods=["POST"])
 def chat():
     # Check authentication token
     request_data = request.get_json()
@@ -63,11 +64,14 @@ class ModelMiner():
         
         self.system_prompt=""
 
-        self.tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
+        
+        self.tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
 
-        name = 'TheBloke/mpt-7b-chat-GGML'
+
+        name = 'mosaicml/mpt-7b-chat'
         
         config = transformers.AutoConfig.from_pretrained(name, trust_remote_code=True)
+        config.attn_config['attn_impl'] = 'triton'
         config.init_device = 'cuda:0' # For fast initialization directly on GPU!
         
         self.model = transformers.AutoModelForCausalLM.from_pretrained(
@@ -76,6 +80,9 @@ class ModelMiner():
           torch_dtype=torch.bfloat16, # Load model weights in bfloat16
           trust_remote_code=True
         )
+        config.init_device = 'cuda:0' # For fast initialization directly on GPU!
+        
+
         print("model loaded")
         
         
@@ -139,4 +146,4 @@ class ModelMiner():
 if __name__ == "__main__":
     args = parse_arguments()
     miner = ModelMiner(args.model_name)
-    app.run(host="0.0.0.0", port=args.port, threaded=False)
+    app.run(host="0.0.0.0", port=args.port, threaded=False,debug=True)
